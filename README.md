@@ -96,7 +96,10 @@ Each entry above is drawn from the organization’s official information.  For e
 
 
 The app should be able to submit a request to 811. it will need to take in an address and other required details to submit a  request through a api. there should be 1 api to submit any 811 request to any district.
-we should use llama 2 to make phone calls and emailed. we need to be able respond to emails and exteact additional details. we need to be able extract details from the phone calls.
+we should use llama 2 to make phone calls , submit webforms and emails. we need to be able respond to emails and exteact additional details. we need to be able extract details from the phone calls.
 
-after creating a request, users should be able to get updates.
+after creating a request, users should be able to get updates. the application should be able to get that update using the required method. 
+
+we should try and use llama and automate submission patterns when wr are able to to reduce cost. for example submitting a webform could be automated.
+
 This app will be built using node and aws services. A salesforce app that integrates with the api through a flow action aka invocable.
