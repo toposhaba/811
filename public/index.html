@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>811 Integration API Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-area {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .response-area h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .response-content {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e1e5e9;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success {
+            background: #28a745;
+        }
+
+        .status-error {
+            background: #dc3545;
+        }
+
+        .status-loading {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e1e5e9;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .health-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .health-status .status-indicator {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>811 Integration API</h1>
+            <p>Test Interface for 811 Request Management</p>
+        </div>
+
+        <div class="content">
+            <div class="health-status">
+                <span class="status-indicator status-loading" id="healthIndicator"></span>
+                <span id="healthStatus">Checking API health...</span>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('create')">Create Request</button>
+                <button class="tab" onclick="showTab('search')">Search Requests</button>
+                <button class="tab" onclick="showTab('status')">Check Status</button>
+                <button class="tab" onclick="showTab('manage')">Manage Requests</button>
+            </div>
+
+            <!-- Create Request Tab -->
+            <div id="create" class="tab-content active">
+                <div class="card">
+                    <h3>Create New 811 Request</h3>
+                    <form id="createRequestForm">
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="requestorName">Requestor Name</label>
+                                <input type="text" id="requestorName" name="requestorName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="requestorPhone">Requestor Phone</label>
+                                <input type="tel" id="requestorPhone" name="requestorPhone" required>
+                            </div>
+                        </div>
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="requestorEmail">Requestor Email</label>
+                                <input type="email" id="requestorEmail" name="requestorEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="district">District</label>
+                                <select id="district" name="district" required>
+                                    <option value="">Select District</option>
+                                    <option value="district1">District 1</option>
+                                    <option value="district2">District 2</option>
+                                    <option value="district3">District 3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="workDescription">Work Description</label>
+                            <textarea id="workDescription" name="workDescription" rows="4" required></textarea>
+                        </div>
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="startDate" name="startDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input type="date" id="endDate" name="endDate" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Work Location</label>
+                            <textarea id="location" name="location" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Create Request</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Search Requests Tab -->
+            <div id="search" class="tab-content">
+                <div class="card">
+                    <h3>Search Requests</h3>
+                    <form id="searchForm">
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="searchRequestor">Requestor Name</label>
+                                <input type="text" id="searchRequestor" name="requestorName">
+                            </div>
+                            <div class="form-group">
+                                <label for="searchStatus">Status</label>
+                                <select id="searchStatus" name="status">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="searchStartDate">Start Date</label>
+                                <input type="date" id="searchStartDate" name="startDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="searchEndDate">End Date</label>
+                                <input type="date" id="searchEndDate" name="endDate">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">Search Requests</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Check Status Tab -->
+            <div id="status" class="tab-content">
+                <div class="card">
+                    <h3>Check Request Status</h3>
+                    <form id="statusForm">
+                        <div class="form-group">
+                            <label for="requestId">Request ID</label>
+                            <input type="text" id="requestId" name="requestId" required placeholder="Enter request ID">
+                        </div>
+                        <button type="submit" class="btn">Check Status</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manage Requests Tab -->
+            <div id="manage" class="tab-content">
+                <div class="card">
+                    <h3>Manage Request</h3>
+                    <form id="manageForm">
+                        <div class="form-group">
+                            <label for="manageRequestId">Request ID</label>
+                            <input type="text" id="manageRequestId" name="requestId" required>
+                        </div>
+                        <div class="grid">
+                            <button type="button" class="btn" onclick="cancelRequest()">Cancel Request</button>
+                            <button type="button" class="btn" onclick="retryRequest()">Retry Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Response Area -->
+            <div class="response-area" id="responseArea" style="display: none;">
+                <h3>API Response</h3>
+                <div class="response-content" id="responseContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let currentRequestId = null;
+
+        // Check API health on page load
+        window.addEventListener('load', checkHealth);
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const indicator = document.getElementById('healthIndicator');
+                const status = document.getElementById('healthStatus');
+                
+                if (response.ok) {
+                    indicator.className = 'status-indicator status-success';
+                    status.textContent = `API Healthy - ${data.timestamp}`;
+                } else {
+                    indicator.className = 'status-indicator status-error';
+                    status.textContent = 'API Unhealthy';
+                }
+            } catch (error) {
+                const indicator = document.getElementById('healthIndicator');
+                const status = document.getElementById('healthStatus');
+                indicator.className = 'status-indicator status-error';
+                status.textContent = 'API Unreachable';
+            }
+        }
+
+        function showResponse(data, isError = false) {
+            const responseArea = document.getElementById('responseArea');
+            const responseContent = document.getElementById('responseContent');
+            
+            responseContent.textContent = JSON.stringify(data, null, 2);
+            responseArea.style.display = 'block';
+            
+            if (isError) {
+                responseContent.style.borderLeft = '4px solid #dc3545';
+            } else {
+                responseContent.style.borderLeft = '4px solid #28a745';
+            }
+        }
+
+        // Create Request Form Handler
+        document.getElementById('createRequestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const requestData = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/requests`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentRequestId = data.requestId || data.id;
+                    showResponse(data);
+                } else {
+                    showResponse(data, true);
+                }
+            } catch (error) {
+                showResponse({ error: 'Network error', message: error.message }, true);
+            }
+        });
+
+        // Search Form Handler
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const searchParams = new URLSearchParams();
+            
+            for (let [key, value] of formData.entries()) {
+                if (value) searchParams.append(key, value);
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/requests?${searchParams.toString()}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResponse(data);
+                } else {
+                    showResponse(data, true);
+                }
+            } catch (error) {
+                showResponse({ error: 'Network error', message: error.message }, true);
+            }
+        });
+
+        // Status Form Handler
+        document.getElementById('statusForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const requestId = document.getElementById('requestId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/requests/${requestId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResponse(data);
+                } else {
+                    showResponse(data, true);
+                }
+            } catch (error) {
+                showResponse({ error: 'Network error', message: error.message }, true);
+            }
+        });
+
+        async function cancelRequest() {
+            const requestId = document.getElementById('manageRequestId').value;
+            if (!requestId) {
+                alert('Please enter a request ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/requests/${requestId}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResponse(data);
+                } else {
+                    showResponse(data, true);
+                }
+            } catch (error) {
+                showResponse({ error: 'Network error', message: error.message }, true);
+            }
+        }
+
+        async function retryRequest() {
+            const requestId = document.getElementById('manageRequestId').value;
+            if (!requestId) {
+                alert('Please enter a request ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/requests/${requestId}/retry`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResponse(data);
+                } else {
+                    showResponse(data, true);
+                }
+            } catch (error) {
+                showResponse({ error: 'Network error', message: error.message }, true);
+            }
+        }
+
+        // Set default dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            document.getElementById('startDate').value = today.toISOString().split('T')[0];
+            document.getElementById('endDate').value = tomorrow.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>

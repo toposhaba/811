@@ -41,6 +41,9 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+// Serve static files
+app.use(express.static('public'));
+
 // Request logging middleware
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.path}`, {
@@ -63,6 +66,11 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || '1.0.0'
   });
+});
+
+// Serve the main page
+app.get('/', (req, res) => {
+  res.sendFile('index.html', { root: 'public' });
 });
 
 // Error handling middleware
