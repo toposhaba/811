@@ -11,7 +11,7 @@ I'll let you know when the data is ready for your review.
 
 # 811 One-Call Districts (US) and Utility Locate Services (Canada)
 
-The table below lists each U.S. state (and territory) 811 call-before-you-dig center and each Canadian provincial/territorial one-call service. For each, it gives the district name, the area covered, the methods available to submit a locate request, and links to official websites or portals. Where methods differ for homeowners vs. contractors (when noted on the official site), that is indicated. All information is from the organizations’ official sources.
+The table below lists each U.S. state (and territory) 811 call-before-you-dig center and each Canadian provincial/territorial one-call service. For each, it gives the district name, the area covered, the methods available to submit a locate request, and links to official websites or portals. Where methods differ for homeowners vs. contractors (when noted on the official site), that is indicated. All information is from the organizations' official sources.
 
 | District / Service Name (Call Center)                               | Area Covered                                                   | Submission Methods                                                                            | Official Site / Request Portal                                                    |
 | ------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
@@ -103,3 +103,211 @@ after creating a request, users should be able to get updates. the application s
 we should try and use llama and automate submission patterns when wr are able to to reduce cost. for example submitting a webform could be automated.
 
 This app will be built using node and aws services. A salesforce app that integrates with the api through a flow action aka invocable.
+
+---
+
+## Enhanced Functional Requirements
+
+### 1. Core Functionality
+
+#### 1.1 Unified 811 Request Submission
+- **Single API Interface**: Provide one standardized API endpoint that can submit requests to any 811 district in US/Canada
+- **Multi-Channel Support**: Support all submission methods (Web forms, Email, Phone, API)
+- **Smart Routing**: Automatically route requests to the correct district based on address/location
+- **Data Normalization**: Convert unified request format to district-specific requirements
+
+#### 1.2 Request Management
+- **Request Creation**: Accept standard fields (address, work type, contact info, work dates, etc.)
+- **Request Tracking**: Maintain unique identifiers for all submitted requests
+- **Status Updates**: Retrieve and store real-time status updates from districts
+- **Request History**: Maintain audit trail of all requests and interactions
+
+#### 1.3 AI-Powered Automation
+- **Web Form Automation**: Use LLama 2 to automatically fill and submit web forms
+- **Email Processing**: Parse and extract data from email responses
+- **Phone Call Handling**: Make automated phone calls and extract information from responses
+- **Pattern Learning**: Learn and optimize submission patterns to reduce operational costs
+
+### 2. Integration Requirements
+
+#### 2.1 Salesforce Integration
+- **Flow Actions**: Expose API as invocable actions in Salesforce flows
+- **Custom Objects**: Create custom objects to store 811 requests and responses
+- **Lightning Components**: Provide UI components for request submission and tracking
+- **Real-time Sync**: Bi-directional sync between Salesforce and backend system
+
+#### 2.2 External System Integration
+- **District APIs**: Direct integration where available
+- **Web Scraping**: Automated form submission for districts without APIs
+- **Email Integration**: Send/receive emails programmatically
+- **Telephony Integration**: Make and receive phone calls via VoIP services
+
+### 3. User Requirements
+
+#### 3.1 User Types
+- **Salesforce Users**: Submit requests through Salesforce UI
+- **API Users**: Direct API access for programmatic submissions
+- **Administrators**: Manage district configurations and monitor system health
+
+#### 3.2 User Capabilities
+- **Submit Requests**: Easy-to-use interface for creating 811 requests
+- **Track Status**: Real-time visibility into request status
+- **View History**: Access historical requests and outcomes
+- **Receive Notifications**: Get alerts on status changes
+
+## Technical Requirements
+
+### 1. Architecture & Infrastructure
+
+#### 1.1 AWS Services
+- **API Gateway**: RESTful API with rate limiting and authentication
+- **Lambda Functions**: Serverless compute for request processing
+- **DynamoDB**: NoSQL database for request storage and tracking
+- **SQS/SNS**: Message queuing for asynchronous processing
+- **S3**: Document and attachment storage
+- **EventBridge**: Event-driven architecture for status updates
+- **Step Functions**: Orchestrate complex multi-step submissions
+- **CloudWatch**: Logging, monitoring, and alerting
+
+#### 1.2 AI/ML Services
+- **Amazon Bedrock**: Host LLama 2 model for NLP tasks
+- **Amazon Comprehend**: Extract entities from unstructured text
+- **Amazon Textract**: Extract data from PDFs and images
+- **Amazon Connect**: Automated phone call handling
+
+### 2. Backend Requirements
+
+#### 2.1 Node.js Application
+- **Framework**: Express.js or Fastify for API development
+- **TypeScript**: Type-safe development
+- **Database ORM**: Prisma or TypeORM for data access
+- **Queue Processing**: Bull or AWS SDK for SQS
+- **Testing**: Jest for unit/integration tests
+
+#### 2.2 API Design
+```javascript
+// Core API Endpoints
+POST   /api/v1/requests              // Create new 811 request
+GET    /api/v1/requests/{id}         // Get request details
+GET    /api/v1/requests/{id}/status  // Get current status
+PUT    /api/v1/requests/{id}         // Update request
+GET    /api/v1/districts             // List all districts
+GET    /api/v1/districts/{id}        // Get district details
+```
+
+#### 2.3 Data Models
+```typescript
+// Request Model
+interface LocateRequest {
+  id: string;
+  districtId: string;
+  address: Address;
+  workType: WorkType;
+  workStartDate: Date;
+  duration: number;
+  contactInfo: ContactInfo;
+  excavatorInfo: ExcavatorInfo;
+  submissionMethod: SubmissionMethod;
+  status: RequestStatus;
+  responses: Response[];
+  metadata: Record<string, any>;
+}
+
+// District Configuration
+interface District {
+  id: string;
+  name: string;
+  states: string[];
+  submissionMethods: SubmissionMethod[];
+  requirements: DistrictRequirements;
+  endpoints: DistrictEndpoints;
+}
+```
+
+### 3. Integration Layer
+
+#### 3.1 District Adapters
+- **Web Form Adapter**: Puppeteer/Playwright for form automation
+- **Email Adapter**: AWS SES for sending, IMAP for receiving
+- **API Adapter**: Axios with retry logic and circuit breakers
+- **Phone Adapter**: Amazon Connect or Twilio integration
+
+#### 3.2 LLama 2 Integration
+```typescript
+// AI Processing Interface
+interface AIProcessor {
+  extractFormData(html: string): FormData;
+  parseEmailResponse(email: string): ResponseData;
+  transcribePhoneCall(audio: Buffer): Transcript;
+  generatePhoneScript(request: LocateRequest): PhoneScript;
+}
+```
+
+### 4. Security Requirements
+
+#### 4.1 Authentication & Authorization
+- **API Keys**: For Salesforce and external integrations
+- **OAuth 2.0**: For user authentication
+- **IAM Roles**: Fine-grained AWS permissions
+- **Encryption**: TLS 1.3 for transit, AES-256 for storage
+
+#### 4.2 Data Protection
+- **PII Handling**: Encrypt sensitive customer data
+- **Audit Logging**: Track all data access and modifications
+- **Data Retention**: Configurable retention policies
+- **GDPR Compliance**: Right to deletion, data portability
+
+### 5. Performance Requirements
+
+#### 5.1 Scalability
+- **Request Volume**: Handle 10,000+ requests per day
+- **Concurrent Processing**: Process 100+ simultaneous submissions
+- **Auto-scaling**: Dynamic scaling based on load
+- **Multi-region**: Deploy in multiple AWS regions for redundancy
+
+#### 5.2 Response Times
+- **API Response**: < 200ms for synchronous operations
+- **Request Submission**: < 5 minutes for automated submissions
+- **Status Updates**: Near real-time (< 1 minute delay)
+
+### 6. Monitoring & Operations
+
+#### 6.1 Observability
+- **Metrics**: Request success rate, processing time, error rates
+- **Logging**: Structured JSON logs with correlation IDs
+- **Tracing**: Distributed tracing for request flow
+- **Alerting**: PagerDuty integration for critical issues
+
+#### 6.2 Error Handling
+- **Retry Logic**: Exponential backoff for transient failures
+- **Dead Letter Queues**: Handle permanently failed requests
+- **Fallback Mechanisms**: Alternative submission methods
+- **Manual Intervention**: Queue for human review when automation fails
+
+### 7. Development & Deployment
+
+#### 7.1 CI/CD Pipeline
+- **Source Control**: Git with GitFlow branching strategy
+- **Build**: GitHub Actions or AWS CodeBuild
+- **Testing**: Automated unit, integration, and E2E tests
+- **Deployment**: AWS CDK or Terraform for infrastructure as code
+
+#### 7.2 Environments
+- **Development**: Isolated dev environment with mock services
+- **Staging**: Production-like environment for testing
+- **Production**: Multi-region deployment with blue-green releases
+
+### 8. Documentation Requirements
+
+- **API Documentation**: OpenAPI/Swagger specification
+- **Integration Guides**: Step-by-step Salesforce setup
+- **District Mapping**: Detailed requirements for each district
+- **Troubleshooting Guide**: Common issues and solutions
+- **Architecture Diagrams**: System design and data flow
+
+### 9. Compliance & Legal
+
+- **811 Regulations**: Comply with federal and state dig laws
+- **Data Privacy**: Follow applicable privacy laws (CCPA, PIPEDA)
+- **Service Agreements**: SLAs with districts where applicable
+- **Liability Management**: Clear terms of service and disclaimers
