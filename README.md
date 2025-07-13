@@ -1,13 +1,135 @@
-# 811
-Salesforce app to create 811 request
+# 811 Integration API
 
+A comprehensive Node.js API service that automates the submission and tracking of 811 (Call Before You Dig) requests across all US states and Canadian provinces. The system integrates with Salesforce and uses AI-powered automation to submit requests via web forms, phone calls, emails, and APIs.
 
+## Features
 
-current state of submitting locator request
-Understood. I will compile a table listing every 811 district in the United States and the equivalent services in Canada, including how to submit a locator request. This will include available request methods such as email, API, webform, or other platforms, with links to the official documentation or submission portals for each.
+- **Universal 811 Request Submission**: Single API endpoint to submit requests to any 811 district in US/Canada
+- **Multi-Method Submission**: Automatically selects the best submission method (API, Web Form, Email, Phone)
+- **AI-Powered Automation**:
+  - Web form filling using Puppeteer and OpenAI
+  - Automated phone calls using Twilio
+  - Email parsing and response handling
+  - Speech-to-text transcription for call recordings
+- **Status Tracking**: Automated polling and webhook support for real-time updates
+- **Salesforce Integration**: Direct integration with Salesforce flows and records
+- **District Coverage**: Complete coverage of all US states and Canadian provinces
 
-I'll let you know when the data is ready for your review.
+## Technology Stack
 
+- **Backend**: Node.js, Express.js
+- **Database**: AWS DynamoDB
+- **Storage**: AWS S3
+- **Queue**: AWS SQS
+- **AI/ML**: OpenAI GPT-4, Whisper
+- **Automation**: Puppeteer, Twilio
+- **Email**: IMAP, Nodemailer
+
+## Prerequisites
+
+- Node.js 16+ 
+- AWS Account with configured services
+- Twilio Account
+- OpenAI API Key
+- Email account with IMAP access
+- Salesforce instance (for integration)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd 811-integration-api
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Run setup script:
+```bash
+node setup.js
+```
+
+4. Configure environment variables by editing `.env` file with your credentials
+
+5. Start the development server:
+```bash
+npm run dev
+```
+
+## API Documentation
+
+### Authentication
+
+All API endpoints require JWT authentication. Include the token in the Authorization header:
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+### Endpoints
+
+#### Create 811 Request
+```
+POST /api/requests
+```
+
+Request body:
+```json
+{
+  "contactName": "John Doe",
+  "companyName": "ABC Construction",
+  "phone": "+1-555-123-4567",
+  "email": "john@example.com",
+  "address": {
+    "street": "123 Main St",
+    "city": "Austin",
+    "state": "TX",
+    "zipCode": "78701",
+    "country": "US"
+  },
+  "workType": "excavation",
+  "workDescription": "Installing new water line",
+  "startDate": "2024-02-01",
+  "duration": 3,
+  "depth": 4,
+  "workArea": {
+    "length": 50,
+    "width": 3,
+    "nearestCrossStreet": "Oak Ave",
+    "markedArea": true
+  },
+  "emergencyWork": false
+}
+```
+
+#### Get Request Status
+```
+GET /api/requests/{requestId}
+```
+
+#### Get Status Updates
+```
+GET /api/status/{requestId}
+```
+
+#### Search Requests
+```
+GET /api/requests?districtId={districtId}&status={status}
+```
+
+### Salesforce Integration
+
+The API provides special endpoints for Salesforce Flow integration:
+
+```
+POST /api/salesforce/flow/create
+```
+
+This endpoint accepts Salesforce field names and automatically maps them to the internal format.
+
+## District Information
 
 # 811 One-Call Districts (US) and Utility Locate Services (Canada)
 
@@ -102,8 +224,64 @@ after creating a request, users should be able to get updates. the application s
 
 we should try and use llama and automate submission patterns when wr are able to to reduce cost. for example submitting a webform could be automated.
 
-This app will be built using node and aws services. A salesforce app that integrates with the api through a flow action aka invocable.
+This app will be built using node and aws services. A salesforce app that integrates with the api through a flow action aka invo
+## How It Works
 
+### Submission Process
+
+1. **Request Creation**: When a request is submitted via the API, the system automatically identifies the appropriate 811 district based on the work location.
+
+2. **Method Selection**: The system selects the best submission method in this priority order:
+   - API (if available)
+   - Web Form
+   - Email
+   - Phone Call
+
+3. **Automated Submission**:
+   - **API**: Direct API integration for districts that support it
+   - **Web Form**: AI-powered form filling using Puppeteer and OpenAI
+   - **Email**: Automated email generation and sending
+   - **Phone**: AI-generated call scripts executed via Twilio
+
+4. **Status Tracking**:
+   - Webhook listeners for real-time updates
+   - Email monitoring for responses
+   - Periodic web scraping for status checks
+   - Call recording transcription
+
+### AI Integration
+
+The system uses OpenAI GPT-4 for:
+- Analyzing web forms and generating filling instructions
+- Creating natural phone call scripts
+- Parsing email responses
+- Extracting ticket numbers from various formats
+
+### Error Handling
+
+If a submission method fails, the system automatically falls back to the next available method. All attempts are logged and status updates are provided via the API.
+
+## Development
+
+### Running Tests
+```bash
+npm test
+```
+
+### Test API
+```bash
+node src/test/testApi.js
+```
+
+### Logs
+- Application logs: `logs/all.log`
+- Error logs: `logs/error.log`
+- Screenshots (for debugging): `screenshots/`
+
+## License
+
+This project is proprietary software. All rights reserved.
+=======
 ---
 
 ## Enhanced Functional Requirements
@@ -310,4 +488,4 @@ interface AIProcessor {
 - **811 Regulations**: Comply with federal and state dig laws
 - **Data Privacy**: Follow applicable privacy laws (CCPA, PIPEDA)
 - **Service Agreements**: SLAs with districts where applicable
-- **Liability Management**: Clear terms of service and disclaimers
+- **Liability Management**: Clear terms of service and disclaimer
