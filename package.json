@@ -7,6 +7,12 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "jest",
+    "test:webforms": "node src/test/runWebformTests.js",
+    "test:webforms:quick": "node src/test/runWebformTests.js quick",
+    "test:webforms:web": "node src/test/runWebformTests.js webform",
+    "test:webforms:api": "node src/test/runWebformTests.js api",
+    "test:puppeteer": "node src/test/webformPuppeteerTest.js",
+    "test:suite": "node src/test/webformTestSuite.js",
     "deploy": "serverless deploy",
     "lint": "eslint src/**/*.js"
   },
